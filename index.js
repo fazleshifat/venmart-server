@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,9 +36,10 @@ async function run() {
 
         // create database and inserting data
         const usersCollection = client.db("venmartDB").collection("users");
+        const allProductsCollection = client.db("venmartDB").collection("allProducts");
         // const groupsCollection = client.db("hobbins").collection("groups");
 
-        // sending data with post method
+        // user related crud
         app.post('/users', async (req, res) => {
             console.log("Received body:", req.body);  // Add this line
             const userProfile = req.body;
@@ -46,7 +47,31 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
 
+        })
+
+        // product related api
+        app.post('/allProducts', async (req, res) => {
+            const productsInfo = req.body;
+            const result = await allProductsCollection.insertOne(productsInfo);
+            res.send(result);
+
+        })
+
+        app.get('/allProducts', async (req, res) => {
+            const result = await allProductsCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.get('/products/:category', async (req, res) => {
+            const category = req.params.category;
+            const query = { category: category };
+            const result = await allProductsCollection.find(query).toArray();
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
@@ -56,6 +81,7 @@ async function run() {
         // await client.close();
     }
 }
+
 run().catch(console.dir);
 
 
