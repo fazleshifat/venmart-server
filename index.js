@@ -66,6 +66,13 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/allProducts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await allProductsCollection.findOne(query);
+            res.send(result);
+        })
+
         app.get('/products/:category', async (req, res) => {
             const category = req.params.category;
             const query = { category: category };
