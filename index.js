@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors({
-    origin: "https://venmart.netlify.app/",
+    origin: "http://localhost:5174",
     credentials: true
 }));
 app.use(express.json());
@@ -27,13 +27,14 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
 
 
         // create database and inserting data
         const usersCollection = client.db("venmartDB").collection("users");
         const allProductsCollection = client.db("venmartDB").collection("allProducts");
+        const cartCollection = client.db("venmartDB").collection("cartItems");
         // const groupsCollection = client.db("hobbins").collection("groups");
 
         // user related crud
@@ -90,6 +91,24 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/products/cart', async (req, res) => {
+            const productsInfo = req.body;
+            const result = await cartCollection.insertOne(productsInfo);
+            res.send(result);
+        })
+
+        app.get('/product/cart', async (req, res) => {
+            const result = await cartCollection.find().toArray();
+            res.send(result);
+
+        })
+
+        app.delete('/cart/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
