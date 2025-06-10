@@ -7,7 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://venmart.netlify.app/",
     credentials: true
 }));
 app.use(express.json());
@@ -67,6 +67,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await allProductsCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.put('/allProducts/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const updatedProduct = req.body;
+            const updatedDoc = {
+                $set: updatedProduct
+            }
+
+            const result = await allProductsCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
 
