@@ -93,10 +93,17 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/product/cart', async (req, res) => {
+        app.get('/cart', async (req, res) => {
             const result = await cartCollection.find().toArray();
             res.send(result);
 
+        })
+
+        app.get('/cart/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.findOne(query);
+            res.send(result);
         })
 
         app.delete('/cart/delete/:id', async (req, res) => {
