@@ -6,10 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({
-    origin: "http://localhost:5174",
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 
@@ -27,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        // await client.connect();
+        await client.connect();
 
 
 
@@ -35,7 +32,6 @@ async function run() {
         const usersCollection = client.db("venmartDB").collection("users");
         const allProductsCollection = client.db("venmartDB").collection("allProducts");
         const cartCollection = client.db("venmartDB").collection("cartItems");
-        // const groupsCollection = client.db("hobbins").collection("groups");
 
         // user related crud
         app.post('/users', async (req, res) => {
@@ -107,6 +103,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.delete('/allProducts/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await allProductsCollection.deleteOne(query);
             res.send(result);
         })
         // Send a ping to confirm a successful connection
