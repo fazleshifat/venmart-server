@@ -69,14 +69,25 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
             const result = await usersCollection.find().toArray();
             res.send(result);
 
         })
 
         // product related api
-        app.post('/addProducts', async (req, res) => {
+        app.post('/addProducts', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const productsInfo = req.body;
             const result = await allProductsCollection.insertOne(productsInfo);
             res.send(result);
@@ -113,7 +124,14 @@ async function run() {
             }
         });
 
-        app.put('/allProducts/:id', async (req, res) => {
+        app.put('/allProducts/:id', verifyJwt, async (req, res) => {
+
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true }
@@ -127,7 +145,14 @@ async function run() {
         })
 
         // update main quantity after cancel order
-        app.patch('/allProducts/:id', async (req, res) => {
+        app.patch('/allProducts/:id', verifyJwt, async (req, res) => {
+
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const id = req.params.id
 
             const query = { _id: new ObjectId(id) }
@@ -147,18 +172,30 @@ async function run() {
 
             }
             catch {
-                res.send({ msg: 'product decreamnet hoi nai' })
+                res.send({ msg: 'failed to decrease product' })
             }
         })
 
-        app.get('/products/:category', async (req, res) => {
+        app.get('/products/:category', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const category = req.params.category;
             const query = { category: category };
             const result = await allProductsCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.post('/products/cart', async (req, res) => {
+        app.post('/products/cart', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const productsInfo = req.body;
             const result = await cartCollection.insertOne(productsInfo);
 
@@ -166,8 +203,16 @@ async function run() {
         })
 
         // update main quantity while purchase
-        
-        app.patch('/cart/:id', async (req, res) => {
+
+        app.patch('/cart/:id', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
+
+
             const id = req.params.id
 
             const query = { _id: new ObjectId(id) }
@@ -187,26 +232,44 @@ async function run() {
 
             }
             catch {
-                res.send({ msg: 'product decreamnet hoi nai' })
+                res.send({ msg: 'failed to decrease' })
             }
 
         })
 
 
-        app.get('/cart', async (req, res) => {
+        app.get('/cart', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const result = await cartCollection.find().toArray();
             res.send(result);
 
         })
 
-        app.get('/cart/:id', async (req, res) => {
+        app.get('/cart/:id', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.findOne(query);
             res.send(result);
         })
 
-        app.delete('/cart/delete/:id', async (req, res) => {
+        app.delete('/cart/delete/:id', verifyJwt, async (req, res) => {
+            const email = req.query.email;
+            console.log(email, req.headers);
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await cartCollection.deleteOne(query);
