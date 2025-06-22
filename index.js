@@ -63,7 +63,6 @@ async function run() {
 
         // user related crud
         app.post('/users', async (req, res) => {
-            console.log("Received body:", req.body);  // Add this line
             const userProfile = req.body;
             const result = await usersCollection.insertOne(userProfile);
             res.send(result);
@@ -71,7 +70,6 @@ async function run() {
 
         app.get('/users', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -83,7 +81,6 @@ async function run() {
         // product related api
         app.post('/addProducts', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -96,7 +93,6 @@ async function run() {
 
         app.get('/allProducts', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -116,18 +112,15 @@ async function run() {
                     return res.status(404).send({ message: 'Product not found' });
                 }
 
-                // Optionally, you could add a check here if product.ownerEmail === req.decodedEmail
                 res.send(product);
             } catch (error) {
-                console.error(error);
                 res.status(500).send({ message: 'Server error' });
             }
         });
 
-        app.put('/allProducts/:id', verifyJwt, async (req, res) => {
+        app.put('/allProducts/:id/:email', verifyJwt, async (req, res) => {
 
-            const email = req.query.email;
-            console.log(email, req.headers);
+            const email = req.params.email;
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -145,10 +138,9 @@ async function run() {
         })
 
         // update main quantity after cancel order
-        app.patch('/allProducts/:id', verifyJwt, async (req, res) => {
+        app.patch('/allProducts/:id/:email', verifyJwt, async (req, res) => {
 
-            const email = req.query.email;
-            console.log(email, req.headers);
+            const email = req.params.email;
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -157,7 +149,6 @@ async function run() {
 
             const query = { _id: new ObjectId(id) }
             const info = req.body
-            console.log(info, id)
 
             const update = {
                 $inc: {
@@ -167,7 +158,6 @@ async function run() {
 
             try {
                 const result = await allProductsCollection.updateOne(query, update)
-                console.log(result)
                 res.send(result)
 
             }
@@ -176,9 +166,8 @@ async function run() {
             }
         })
 
-        app.get('/products/:category', verifyJwt, async (req, res) => {
-            const email = req.query.email;
-            console.log(email, req.headers);
+        app.get('/products/:category/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -191,7 +180,6 @@ async function run() {
 
         app.post('/products/cart', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -204,9 +192,8 @@ async function run() {
 
         // update main quantity while purchase
 
-        app.patch('/cart/:id', verifyJwt, async (req, res) => {
-            const email = req.query.email;
-            console.log(email, req.headers);
+        app.patch('/cart/:id/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -217,7 +204,6 @@ async function run() {
 
             const query = { _id: new ObjectId(id) }
             const info = req.body
-            console.log(info, id)
 
             const update = {
                 $inc: {
@@ -227,7 +213,6 @@ async function run() {
 
             try {
                 const result = await allProductsCollection.updateOne(query, update)
-                console.log(result)
                 res.send(result)
 
             }
@@ -240,7 +225,6 @@ async function run() {
 
         app.get('/cart', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -252,7 +236,6 @@ async function run() {
 
         app.get('/cart/:id', verifyJwt, async (req, res) => {
             const email = req.query.email;
-            console.log(email, req.headers);
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -263,9 +246,8 @@ async function run() {
             res.send(result);
         })
 
-        app.delete('/cart/delete/:id', verifyJwt, async (req, res) => {
-            const email = req.query.email;
-            console.log(email, req.headers);
+        app.delete('/cart/delete/:id/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
             if (req.decodedEmail !== email) {
                 return res.status(401).send({ message: 'unauthorized access' });
             }
@@ -276,7 +258,12 @@ async function run() {
             res.send(result);
         })
 
-        app.delete('/allProducts/delete/:id', async (req, res) => {
+        app.delete('/myProduct/delete/:id/:email', verifyJwt, async (req, res) => {
+            const email = req.params.email;
+            if (req.decodedEmail !== email) {
+                return res.status(401).send({ message: 'unauthorized access' });
+            }
+
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await allProductsCollection.deleteOne(query);
